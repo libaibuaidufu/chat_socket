@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>聊天室</title>
+    <link rel="stylesheet" href="static/layui/css/layui.css">
+    <style>
+        body,
+        html {
+            background-color: #fff;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            text-rendering: optimizeLegibility;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
+            font-size: 10vw;
+        }
+
+        .chat_li {
+            line-height: 10vw;
+            font-size: 5vw;
+            text-align: left;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layui-container">
+        <div class="layui-row">
+            <ul id="room-list">
+            </ul>
+            <table id="test" lay-filter="demo"></table>
+            <script type="text/html" id="barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="join">加入</a>
+            </script>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script src="static/layui/layui.js"></script>
+<script src="static/ajax_token.js"></script>
+<script src="static/listen_back.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    const url = chat.host;
+    const namespace = chat.ws + "/get_room_list";
+    var socket = io(namespace)
+    var table;
+    var options = {
+        elem: '#test',
+        data: [],
+        cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+        ,
+        skin: "line",
+        cols: [
+            [{
+                field: 'room_name',
+                title: '房间名称',
+                sort: true
+            }, {
+                field: 'room_num',
+                title: '房间号',
+                sort: true
+            }, {
+                fixed: 'right',
+                title: '操作',
+                toolbar: '#barDemo'
+            }]
+        ]
+    }
+    layui.use('table', function () {
+        table = layui.table;
+        table.render(options);
+        //监听工具条
+        table.on('tool(demo)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'join') {
+                join_room(data)
+            }
+        });
+    });
+    socket.on("get_room_list", function (msg) {
+        options.data = msg.room_list;
+        table.render(options)
+        var el_room_li_list = [];
+        for (var i = 0; i < msg.room_list.length; i++) {
+            delete msg.room_list[i].room_create_time
+            var el_room_li = "<li class='chat_li' onclick=join_room(" + JSON.stringify(msg.room_list[i]) + ")>" + msg.room_list[i].room_name + "</li>"
+            el_room_li_list.push(el_room_li)
+        }
+        //$("#room-list").html(el_room_li_list)
+    })
+    function join_room(room) {
+        var user_name = localStorage.getItem("user_name");
+        if (!user_name) {
+            layer.msg("请先设置用户名！");
+            return false
+        }
+        if (typeof (room) == "string") {
+            room = JSON.parse(room)
+        }
+        localStorage.setItem("room_name", room.room_name);
+        localStorage.setItem("room_num", room.room_num);
+        //var open_url = url + "/chat?username=" + user_name + "&room_num=" + room.room_num + "&room_name=" + room.room_name;
+        var open_url = "chat.html";
+        window.location.href = open_url;
+    }
+    var get_room_list = setInterval(function () {
+        socket.emit('get_room_list');
+    }, 5000)
+    listen_back.re_back(() => {
+        clearInterval(get_room_list)
+        socket.disconnect()
+    })
+</script>
+
+</html>

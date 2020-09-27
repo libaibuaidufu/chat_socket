@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" href="static/layui/css/layui.css">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">    
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            text-rendering: optimizeLegibility;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
+            font-size: 10vw;
+        }
+
+
+        #page {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+            font-size: 4vw;
+        }
+
+        #hd {
+            z-index: 999;
+        }
+
+        #bd {
+            flex-grow: 1;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .box div {
+            margin-bottom: 50px;
+        }
+
+        .box div input {
+            padding: 7px 2px;
+        }
+
+        .login_button {
+            width: 80px;
+            height: 40px;
+            line-height: 4vw;
+            font-size: 4vw;
+            color: #ffffff;
+            background: #2AA0FC;
+            border: none;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="page">
+        <div id="hd">
+            <div style="height: 1.33333rem;">
+            </div>
+        </div>
+        <div id="bd">
+            <!-- body -->
+            <div class="box">
+                <div>
+                    <p style="font-size:10vw;color: #2AA0FC;">聊天室</p>
+                </div>
+                <div>
+                    <input type="text" name="username" placeholder="请输入用户名" id="username" required>
+                </div>
+                <div>
+                    <input type="password" name="password" placeholder="请输入密码" id="password" required>
+                </div>
+                <div>
+                    <input type="button" onclick="submit()" class="login_button" value="登录">
+                </div>
+            </div>
+        </div>
+        <div id="ft">
+            <div style="height: 1.33333rem;">
+                <p style="text-align: right;">没有账号？<a href="chat_register.html">注册</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="static/layui/layui.js"></script>
+<script src="static/ajax_token.js"></script>
+<script src="static/listen_back.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    const host = chat.host;
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    function submit() {
+        var username = $("#username").val();
+        var password = $("#password").val();
+        var auth = window.btoa(username + ":" + password); // 编码
+        $.ajax({
+            url: host + "/user/token",
+            type: "get",
+            headers: { "Authorization": "Basic " + auth },
+            success: function (res) {
+                localStorage.setItem("user_name", username)
+                sessionStorage.setItem("token", res.token);
+                sessionStorage.setItem("auth", auth);
+                chat.get_ajax("/user/current_user", {}, set_info)
+            },
+            error: function (requestObject, error, errorThrown) {
+                alert(errorThrown)
+            }
+        })
+    }
+    function set_info(res) {
+        layer.msg(res.msg)
+        localStorage.setItem("user_info", JSON.stringify(res))
+        if (res.role != "普通会员") {
+            window.location.href = "create_delete_room.html";
+        } else {
+            window.location.href = "chat_join_and_list.html";
+        }
+    }
+</script>
+
+</html>

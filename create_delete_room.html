@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>创建房间</title>
+	<link rel="stylesheet" href="static/layui/css/layui.css">
+	<style>
+		body,
+		html {
+			background-color: #fff;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		.layui-container {
+			padding: 0px;
+		}
+
+		.layui-table-view {
+			margin: 0px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="layui-container">
+		<div class="layui-row">
+			<table class="layui-hide" id="test" lay-filter="demo"></table>
+			<script type="text/html" id="barDemo">
+					<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="join">加入</a>
+					<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+				</script>
+			<script type="text/html" id="toolbarDemo">
+					<div class="layui-btn-container">
+						<button class="layui-btn layui-btn-sm" lay-event="add">新建房间</button>
+					</div>
+				</script>
+			<!-- <button data-method="offset" data-type="auto" class="layui-btn layui-btn-normal" id="jj">新建房间</button> -->
+
+		</div>
+	</div>
+</body>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script src="static/layui/layui.js"></script>
+<script src="static/ajax_token.js"></script>
+<script src="static/listen_back.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	var table;
+	var layer;
+	var room_list = [];
+	var options = {
+		elem: '#test',
+		toolbar: '#toolbarDemo',
+		data: [],
+		cols: [
+			[{
+				field: 'room_name',
+				title: '房间名称'
+			}, {
+				field: 'room_num',
+				title: '房间号'
+			},
+			// {
+			// 	field: 'room_create_time',
+			// 	title: '创建时间',
+			// 	sort: true
+			// },
+			{
+				fixed: 'right',
+				title: '操作',
+				toolbar: '#barDemo'
+			}
+			]
+		]
+	}
+	layui.use('layer', function () {
+		layer = layui.layer;
+		$("#jj").on("click",)
+	});
+	layui.use('table', function () {
+		table = layui.table;
+		table.render(options);
+		//监听事件
+		table.on('toolbar(demo)', function (obj) {
+			var checkStatus = table.checkStatus(obj.config.id);
+			switch (obj.event) {
+				case 'add':
+					open_form();
+					break;
+			};
+		});
+		//监听工具条
+		table.on('tool(demo)', function (obj) {
+			var data = obj.data;
+			if (obj.event === 'del') {
+				delete_room(data.room_num)
+			} else if (obj.event === "join") {
+				join_room(data);
+			}
+		});
+	});
+	layui.use('form', function () {
+		var form = layui.form;
+		//监听提交
+		form.on('submit(form_create_room)', function (data) {
+			layer.msg(JSON.stringify(data.field));
+			chat.post_ajax("/create_room", data.field, create_room_callback)
+			return false;
+		});
+	});
+</script>
+<script type="text/javascript">
+	const namespace = chat.ws + "/get_room_list"
+	var socket = io(namespace)
+	var get_room_list = setInterval(function () {
+		socket.emit('get_room_list');
+	}, 5000);
+	socket.on("get_room_list", function (msg) {
+		options.data = msg.room_list;
+		room_list = msg.room_list;
+		table.render(options)
+	})
+	listen_back.re_back(() => {
+		clearInterval(get_room_list)
+		socket.disconnect()
+	})
+</script>
+<script type="text/javascript">
+	function join_room(room) {
+		var user_name = localStorage.getItem("user_name");
+		if (!user_name) {
+			layer.msg("请先设置用户名！");
+			return false
+		}
+		if (typeof (room) == "string") {
+			room = JSON.parse(room)
+		}
+		localStorage.setItem("room_name", room.room_name);
+		localStorage.setItem("room_num", room.room_num);
+		//var open_url = url + "/chat?username=" + user_name + "&room_num=" + room.room_num + "&room_name=" + room.room_name;
+		var open_url = "chat.html";
+		window.location.href = open_url;
+	}
+
+	function delete_room(index) {
+		var room;
+		for (var i = 0; i < room_list.length; i++) {
+			if (index == room_list[i].room_num) {
+				room = room_list[i];
+				break
+			}
+		}
+		if (!room) {
+			layer.msg("没有此房间号！！");
+			return false
+		}
+		chat.post_ajax("/delete_room", room, delete_room_callback)
+
+	}
+
+	function create_room_callback(res) {
+		if (res.code === 0) {
+			layer.msg(res.msg);
+		} else {
+			layer.msg(res.msg);
+		}
+	}
+
+	function delete_room_callback(res) {
+		if (res.code === 0) {
+			layer.msg(res.msg);
+		} else {
+			layer.msg(res.msg);
+		}
+	}
+
+	function open_form() {
+		layer.open({
+			type: 1,
+			offset: "auto" //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+			,
+			id: 'layerDemo' + "auto" //防止重复弹出
+			,
+			content: `<form class="layui-form" action="">
+			<div class="layui-form-item">
+				<label class="layui-form-label">房间名称</label>
+				<div class="layui-input-inline">
+					<input type="text" name="room_name" required lay-verify="required" placeholder="请输入房间名称" autocomplete="off"
+					 class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">房间号</label>
+				<div class="layui-input-inline">
+					<input type="number" name="room_num" required lay-verify="required" placeholder="请输入房间号" autocomplete="off"
+					 class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn" lay-submit lay-filter="form_create_room">创建</button>
+				</div>
+			</div>
+		</form>`
+		});
+	}
+</script>
+</html>
