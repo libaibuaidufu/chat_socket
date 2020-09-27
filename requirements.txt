@@ -1,0 +1,7 @@
+flask
+passlib
+flask-socketio
+flask-sqlalchemy
+sqlalchemy_utils
+flask_cors
+flask_httpauth
