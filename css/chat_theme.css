@@ -1,0 +1,32 @@
+/* 修改字体 */
+html {}
+
+/* 修改头部背景 */
+.head {}
+
+/* 修改中间背景 */
+#bd {}
+
+/* 修改文本背景 */
+#msg {}
+
+/* 修改发送按钮背景 */
+.send_button {}
+
+/* 修改 自己名称颜色 */
+#messages div.own div p.own_avtar {}
+
+/* 修改 其他人名称颜色 */
+#messages div.other div p.other_avtar {}
+
+/* 修改 系统名称颜色 */
+#messages div.system div p.system_avtar {}
+
+/* 修改自己发送文字颜色 */
+#messages div.own div p.own_msg {}
+
+/* 修改其他人发送文字颜色 */
+#messages div.other div p.other_msg {}
+
+/* 修改系统发送文字颜色 */
+#messages div.system div p.system_msg {}
