@@ -266,7 +266,7 @@
 				<!-- foot -->
 				<div class="foot">
 					<div style="display: flex;justify-content: space-between;align-items:  flex-end;height: 100%;width: 100%">
-						<textarea placeholder="" id="msg" rows="1" ></textarea>
+						<textarea placeholder="" id="msg" rows="1"></textarea>
 						<button type="button" onclick="send_msg()" class="send_button">发送</button>
 					</div>
 				</div>
@@ -290,7 +290,6 @@
 		//const room_name = '156';
 		//const room_num = 156;
 		var username, room_name, room_num;
-
 		if (!username) {
 			username = localStorage.getItem("user_name");
 		}
@@ -300,7 +299,6 @@
 		if (!room_num) {
 			room_num = localStorage.getItem("room_num");
 		}
-
 		$(".head").prepend('<p class="text-center">' + room_name + '</p>');
 		const url = chat.host;
 		const namespace = chat.ws;
@@ -314,24 +312,10 @@
 			socket.emit('join', data);
 		});
 		socket.on("disconnect", function() {
-			var data = {
-				username: username,
-				room_name: room_name,
-				room_num: room_num
-			};
-			socket.emit('leave', data);
+			socket.open()
+			console.log("重练了")
 		});
-		// socket.on('my_response', function (msg) {
-		//     var join_chat;
-		//     if (msg.username === username) {
-		//         join_chat = '<div><p class="own_avtar text-center">' + msg.username + '</p><p class="text-right background_color_own p_own own_msg">' + msg.msg + '</p></div>';
-		//     } else if (msg.username === "系统") {
-		//         join_chat = '<div><p class="text-center background_color_system">' + msg.username + ":" + msg.msg + '</p></div>';
-		//     } else {
-		//         join_chat = '<div><p class="other_avtar text-center" >' + msg.username + '</p><p class="background_color_other p_other other_msg">' + msg.msg + '</p></div>';
-		//     }
-		//     $("#messages").append(join_chat);
-		// });
+		var divscll = document.getElementById('bd');
 		socket.on('my_response', function(msg) {
 			var join_chat;
 			if (msg.username === username) {
@@ -386,6 +370,7 @@
 					</div>`;
 			}
 			$("#messages").append(join_chat);
+			divscll.scrollTop = divscll.scrollHeight;
 		});
 		listen_back.re_back(() => {
 			var data = {
