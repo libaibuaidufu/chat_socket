@@ -5,8 +5,9 @@
 
 body,
 html {
-	background-color: #fff;
+	background-color: #C8CBD0;
 	height: 100%;
+	
 }
 
 html {
@@ -182,6 +183,7 @@ html {
 	border-radius: 5vw;
 	margin: 1px 0px 1px 4px;
 	padding: 0px 10px;
+	background-color: #C8CBD0;
 }
 
 textarea:focus,
