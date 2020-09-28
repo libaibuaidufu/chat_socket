@@ -168,9 +168,8 @@
 					min-height:93%;
 					font-size: 4.5vw;
 					border-radius: 5vw;
-					margin-top: 1px;
-					margin-left:4px;
-					padding: 1px 10px ;
+					margin: 1px 0px 1px 4px;
+					padding: 0px 10px ;
 			}
 			textarea:focus,button:focus{
 				outline: none;
@@ -358,7 +357,6 @@
 	</script>
 	<script>
 		var textarea = document.getElementById('msg');
-
 		function send_msg() {
 			var msg_data = {
 				msg: $("#msg").val(),
@@ -367,7 +365,7 @@
 			};
 			socket.emit('chat_message', msg_data);
 			$('#msg').val('');
-			textarea.style.height = "93%"
+			textarea.style.height = textarea.scrollHeight + 'px';
 			return false;
 		}
 
