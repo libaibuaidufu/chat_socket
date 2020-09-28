@@ -5,183 +5,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		<title>chat</title>
-		<style>
-			* {
-            margin: 0;
-            padding: 0;
-        }
-
-        body,
-        html {
-            background-color: #fff;
-            height: 100%;
-        }
-
-        html {
-            text-rendering: optimizeLegibility;
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-            -webkit-font-smoothing: antialiased;
-            -webkit-text-size-adjust: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
-            font-size: 10vw;
-        }
-
-
-        .border {
-            border-bottom: 1px solid #eee;
-        }
-
-        #page {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        #hd {
-            z-index: 999;
-        }
-
-        #bd {
-            flex-grow: 1;
-            overflow-y: scroll;
-            -webkit-overflow-scrolling: touch;
-        }
-		.head {
-			padding-top: 0;
-			box-sizing: content-box;
-			/* height: 1.33333rem; */
-			background-color: #28385A;
-			font-size: 6vw;
-			line-height: 10vw;
-			color: #ffffff;
-			border-bottom-left-radius: 10px;
-			border-bottom-right-radius: 10px;
-		}
-		
-		.foot {
-		    padding-bottom: 0;
-		    box-sizing: content-box;
-		    height: 1rem;
-		}
-		
-    </style>
-		<style>
-			.text-center {
-            text-align: center;
-        }
-
-        .text-right {
-            text-align: right;
-        }
-
-        .background_color_other {
-            background: #B6B9C1;
-        }
-
-        .background_color_own {
-            background: rgb(18, 183, 245);
-        }
-
-        .background_color_system {
-            background: #dadee7;
-        }
-
-        #messages {
-            font-size: 4.5vw;
-            display: flex;
-            flex-flow: row-reverse wrap;
-            width: 100%;
-
-        }
-		#messages div.other,#messages div.system {
-			width: 100%;
-			margin-bottom: 5px;
-			display: flex;
-			justify-content: flex-start;
-		}
-		#messages div.own {
-			width: 100%;
-			margin-bottom: 5px;
-			display: flex;
-			justify-content: flex-end;
-		}
-		#messages div.other div,#messages div.own div,#messages div.system div {
-			width: 85%;
-		}
-		
-        #messages div.other div p.other_msg,#messages div.system div p.system_msg {
-			float: left;
-			max-width: 90%;
-            margin-right: 2.5%;
-            padding: 2.5%;
-            border-radius: 10px;
-            text-align: left;
-            word-wrap:break-word;
-        }
-		#messages div.other div p.other_avtar {
-			padding: 2% 2.5% 2% 2.5%;
-		    border-radius: 10px;
-			text-align: left;
-			font-size: 3.5vw;
-		}
-		#messages div.system div p.system_avtar {
-			padding: 2% 2.5% 2% 2.5%;
-		    border-radius: 10px;
-			text-align: left;
-			font-size: 3.5vw;
-			color: #009E94;
-		}
-		#messages div.own div p.own_avtar {
-			padding: 2% 2.5% 2% 2.5%;
-		    border-radius:10px;
-			text-align: right;
-			font-size: 3.5vw;
-		}
-		#messages div.own div p.own_msg {
-			float: right;
-		    max-width: 90%;
-		    margin-right: 2.5%;
-		    padding: 2.5%;
-		    border-radius: 10px;
-		    text-align: left;
-		    word-wrap:break-word;
-			color: #ffffff;
-		}
-		#messages div.other div.image,#messages div.own div.image,#messages div.system div.image{
-			width: 10vw !important;height: 10vw;padding: 1%;margin-top: 1%;
-		}
-		#messages div div img{
-			border-radius: 5vw;
-			width:100%; 
-			height:100%;
-		}
-    </style>
-		<style>
-			#msg{
-				    line-height: 9vw;
-					width: 75%;
-					min-width:75%;
-					max-width:75%;
-					height: 93%;
-					min-height:93%;
-					max-height: 500%;
-					font-size: 4.5vw;
-					border-radius: 5vw;
-					margin: 1px 0px 1px 4px;
-					padding: 0px 10px ;
-			}
-			textarea:focus,button:focus{
-				outline: none;
-				}
-			.send_button{
-					width: 15%;height: 100%;font-size: 4.5vw;background: #24B8F3;color: #ffffff;border-radius: 5vw;margin-right:5px;
-					border: none;
-					margin:1px 5px 1px 1px ;
-				}
-    </style>
-
+		<link rel="stylesheet" type="text/css" href="css/chat.css" />
 	</head>
 
 	<body>
@@ -234,7 +58,6 @@
 						</div>
 					</div>
 				</div>
-
 			</div>
 			<div id="ft">
 				<!-- foot -->
@@ -358,6 +181,7 @@
 	</script>
 	<script>
 		var textarea = document.getElementById('msg');
+
 		function send_msg() {
 			var msg_data = {
 				msg: $("#msg").val(),
