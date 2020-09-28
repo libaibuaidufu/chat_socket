@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>chat</title>
-    <style>
-        * {
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>chat</title>
+		<style>
+			* {
             margin: 0;
             padding: 0;
         }
@@ -47,12 +47,29 @@
             flex-grow: 1;
             overflow-y: scroll;
             -webkit-overflow-scrolling: touch;
-
-
         }
+		.head {
+			padding-top: 0;
+			box-sizing: content-box;
+			/* height: 1.33333rem; */
+			background-color: #28385A;
+			font-size: 6vw;
+			line-height: 10vw;
+			color: #ffffff;
+			border-bottom-left-radius: 10px;
+			border-bottom-right-radius: 10px;
+		}
+		
+		.foot {
+		    padding-bottom: 0;
+		    box-sizing: content-box;
+		    height: 1.33333rem;
+		    /* border-top: 1px solid rgba(22, 24, 35, .2); */
+		}
+		
     </style>
-    <style>
-        .text-center {
+		<style>
+			.text-center {
             text-align: center;
         }
 
@@ -66,12 +83,10 @@
 
         .background_color_own {
             background: rgb(18, 183, 245);
-            ;
         }
 
         .background_color_system {
-            background: #B6B9C1;
-            padding: 5px;
+            background: #dadee7;
         }
 
         #messages {
@@ -81,12 +96,9 @@
             width: 100%;
 
         }
-
-        #messages div {
-            width: 100%;
-            margin-bottom: 5px;
-        }
-
+   
+	
+/* 
         #messages div p.own_avtar {
             float: right;
             width: 15%;
@@ -105,195 +117,341 @@
             word-wrap:break-word;
         }
 
-        #messages div p.other_avtar {
+       #messages div p.other_avtar {
             float: left;
             width: 15%;
             height: 15%;
             margin-right: 2.5%;
             border-radius: 10px;
-        }
-
-        #messages div p.other_msg {
-            max-width: 75%;
-            float: left;
+        } */
+		#messages div.other,#messages div.system {
+			width: 100%;
+			margin-bottom: 5px;
+			display: flex;
+			justify-content: flex-start;
+		}
+		#messages div.own {
+			width: 100%;
+			margin-bottom: 5px;
+			display: flex;
+			justify-content: flex-end;
+		}
+		#messages div.other div,#messages div.own div,#messages div.system div {
+			width: 85%;
+		}
+		
+        #messages div.other div p.other_msg,#messages div.system div p.system_msg {
+			float: left;
+			max-width: 90%;
             margin-right: 2.5%;
             padding: 2.5%;
             border-radius: 10px;
             text-align: left;
             word-wrap:break-word;
         }
+		#messages div.other div p.other_avtar {
+			padding: 2% 2.5% 2% 2.5%;
+		    border-radius: 10px;
+			text-align: left;
+			font-size: 3.5vw;
+		}
+		#messages div.system div p.system_avtar {
+			padding: 2% 2.5% 2% 2.5%;
+		    border-radius: 10px;
+			text-align: left;
+			font-size: 3.5vw;
+			color: #009E94;
+		}
+		#messages div.own div p.own_avtar {
+			padding: 2% 2.5% 2% 2.5%;
+		    border-radius: 10px;
+			text-align: right;
+			font-size: 3.5vw;
+		}
+		#messages div.own div p.own_msg {
+			float: right;
+		    max-width: 90%;
+		    margin-right: 2.5%;
+		    padding: 2.5%;
+		    border-radius: 10px;
+		    text-align: left;
+		    word-wrap:break-word;
+			color: #ffffff;
+		}
+		#messages div.other div.image,#messages div.own div.image,#messages div.system div.image{
+			width: 10vw !important;height: 10vw;padding: 1%;margin-top: 1%;
+		}
+		#messages div div img{
+			border-radius: 5vw;
+			width:100%; 
+			height:100%;
+		}
     </style>
-    <style>
-        .head {
-            padding-top: 0;
-            box-sizing: content-box;
-            height: 1.33333rem;
-            background-color:#28385A;
-            font-size: 8vw;
-            line-height: 13vw;
-            color: #ffffff;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-
-        .foot {
-            padding-bottom: 0;
-            box-sizing: content-box;
-            height: 1.33333rem;
-            border-top: 1px solid rgba(22, 24, 35, .2);
-        }
+		<style>
+			#msg{
+				    line-height: 12vw;
+					width: 80%;
+					min-width:80%;
+					max-width:80%;
+					height: 93%;
+					min-height:93%;
+					font-size: 8vw;
+					border-radius: 5vw;
+					margin-top: 1px;
+			}
+			textarea:focus,button:focus{
+				outline: none;
+				}
+			.send_button{
+					width: 20%;height: 100%;font-size: 5.5vw;background: #536484;color: #ffffff;border-radius: 5vw;
+					border: none;
+				}
     </style>
-</head>
 
-<body>
-    <div id="page">
-        <div id="hd">
-            <!-- head -->
-            <div class="head">
-            </div>
-        </div>
-        <div id="bd">
-            <!-- body -->
-            <div id="messages"></div>
+	</head>
 
-        </div>
-        <div id="ft">
-            <!-- foot -->
-            <div class="foot">
-                <div style="display: flex;justify-content: space-between;align-items:  flex-end;height: 100%;width: 100%">
-                    <textarea   placeholder="请输入内容"
-                        style="    line-height: 12vw;width: 80%;min-width:80%;max-width:80%;height: 100%;min-height:100%;max-height:400%;font-size: 8vw;"
-                        id="msg"></textarea>
-                    <button type="button" onclick="send_msg()"
-                        style="width: 20%;height: 100%;font-size: 5.5vw;background: #536484;color: #ffffff;">发送</button>
-                </div>
-            </div>
+	<body>
+		<div id="page">
+			<div id="hd">
+				<!-- head -->
+				<div class="head">
+				</div>
+			</div>
+			<div id="bd">
+				<!-- body -->
+				<div id="messages">
+					<div class="other">
+						<div class="image">
+							<img src="img/avtar-2.png" alt="">
+						</div>
+						<div>
+							<p class="other_avtar">
+								libaibuaidufu
+							</p>
+							<p class="other_msg background_color_other">
+								今天天气不错啊
+							</p>
+						</div>
+					</div>
+					<div class="own">
+						<div>
+							<p class="own_avtar">
+								libaibuaidufu
+							</p>
+							<p class="own_msg background_color_own">
+								今天天气不错啊
+							</p>
+						</div>
+						<div class="image">
+							<img src="img/avtar-1.png" alt="">
+						</div>
+					</div>
+					<div class="system ">
+						<div class="image">
+							<img src="img/bot-18.png" alt="我不是小黄,我是小绿.">
+						</div>
+						<div>
+							<p class="system_avtar">
+								系统
+							</p>
+							<p class="system_msg background_color_system">
+								今天天气不错啊
+							</p>
+						</div>
+					</div>
+				</div>
 
-        </div>
-    </div>
-</body>
-<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-<script src="static/ajax_token.js"></script>
-<script src="static/listen_back.js" type="text/javascript" charset="utf-8"></script>
-<script type="text/javascript" charset="utf-8">
-    //var user_data = Object.fromEntries(new URLSearchParams(window.location.search));
-    //const username = user_data.user_name;
-    //const room_num = user_data.room_num;
-    //const room_name = user_data.room_name;
-    //username = '{{username}}';
-    //room_name = '{{ room_name }}';
-    //room_num = parseInt('{{ room_num }}');
-    //const username = '156';
-    //const room_name = '156';
-    //const room_num = 156;
-    var username, room_name, room_num;
+			</div>
+			<div id="ft">
+				<!-- foot -->
+				<div class="foot">
+					<div style="display: flex;justify-content: space-between;align-items:  flex-end;height: 100%;width: 100%">
+						<textarea placeholder="" id="msg" rows="1" ></textarea>
+						<button type="button" onclick="send_msg()" class="send_button">发送</button>
+					</div>
+				</div>
 
-    if (!username) {
-        username = localStorage.getItem("user_name");
-    }
-    if (!room_name) {
-        room_name = localStorage.getItem("room_name");
-    }
-    if (!room_num) {
-        room_num = localStorage.getItem("room_num");
-    }
+			</div>
+		</div>
+	</body>
+	<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+	<script src="static/ajax_token.js"></script>
+	<script src="static/listen_back.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" charset="utf-8">
+		//var user_data = Object.fromEntries(new URLSearchParams(window.location.search));
+		//const username = user_data.user_name;
+		//const room_num = user_data.room_num;
+		//const room_name = user_data.room_name;
+		//username = '{{username}}';
+		//room_name = '{{ room_name }}';
+		//room_num = parseInt('{{ room_num }}');
+		//const username = '156';
+		//const room_name = '156';
+		//const room_num = 156;
+		var username, room_name, room_num;
 
-    $(".head").prepend('<p class="text-center">' + room_name + '</p>');
-    const url = chat.host;
-    const namespace = chat.ws;
-    var socket = io(namespace);
-    socket.on("connect", function () {
-        var data = {
-            username: username,
-            room_name: room_name,
-            room_num: room_num
-        };
-        socket.emit('join', data);
-    });
-    socket.on("disconnect", function () {
-        var data = {
-            username: username,
-            room_name: room_name,
-            room_num: room_num
-        };
-        socket.emit('leave', data);
-    });
-    socket.on('my_response', function (msg) {
-        var join_chat;
-        if (msg.username === username) {
-            join_chat = '<div><p class="own_avtar text-center">' + msg.username + '</p><p class="text-right background_color_own p_own own_msg">' + msg.msg + '</p></div>';
-        } else if (msg.username === "系统") {
-            join_chat = '<div><p class="text-center background_color_system">' + msg.username + ":" + msg.msg + '</p></div>';
-        } else {
-            join_chat = '<div><p class="other_avtar text-center" >' + msg.username + '</p><p class="background_color_other p_other other_msg">' + msg.msg + '</p></div>';
-        }
-        $("#messages").append(join_chat);
-    });
-    listen_back.re_back(() => {
-        var data = {
-            username: username,
-            room_name: room_name,
-            room_num: room_num
-        };
-        socket.emit('leave', data);
-        socket.disconnect()
-    })
-</script>
-<script>
-    var textarea = document.getElementById('msg');
+		if (!username) {
+			username = localStorage.getItem("user_name");
+		}
+		if (!room_name) {
+			room_name = localStorage.getItem("room_name");
+		}
+		if (!room_num) {
+			room_num = localStorage.getItem("room_num");
+		}
 
-    function send_msg() {
-        var msg_data = {
-            msg: $("#msg").val(),
-            username: username,
-            room_num: room_num
-        };
-        socket.emit('chat_message', msg_data);
-        $('#msg').val('');
-        textarea.style.height="100%"
-        return false;
-    }
-    function makeExpandingArea(el) {
-        var timer = null;
-        //由于ie8有溢出堆栈问题，故调整了这里
-        var setStyle = function (el, auto) {
-            if (auto) el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
-        }
-        var delayedResize = function (el) {
-            if (timer) {
-                clearTimeout(timer);
-                timer = null;
-            }
-            timer = setTimeout(function () {
-                setStyle(el)
-            }, 200);
-        }
-        if (el.addEventListener) {
-            el.addEventListener('input', function () {
-                setStyle(el, 1);
-            }, false);
-            setStyle(el)
-        } else if (el.attachEvent) {
-            el.attachEvent('onpropertychange', function () {
-                setStyle(el)
-            })
-            setStyle(el)
-        }
-        if (window.VBArray && window.addEventListener) { //IE9
-            el.attachEvent("onkeydown", function () {
-                var key = window.event.keyCode;
-                if (key == 8 || key == 46) delayedResize(el);
+		$(".head").prepend('<p class="text-center">' + room_name + '</p>');
+		const url = chat.host;
+		const namespace = chat.ws;
+		var socket = io(namespace);
+		socket.on("connect", function() {
+			var data = {
+				username: username,
+				room_name: room_name,
+				room_num: room_num
+			};
+			socket.emit('join', data);
+		});
+		socket.on("disconnect", function() {
+			var data = {
+				username: username,
+				room_name: room_name,
+				room_num: room_num
+			};
+			socket.emit('leave', data);
+		});
+		// socket.on('my_response', function (msg) {
+		//     var join_chat;
+		//     if (msg.username === username) {
+		//         join_chat = '<div><p class="own_avtar text-center">' + msg.username + '</p><p class="text-right background_color_own p_own own_msg">' + msg.msg + '</p></div>';
+		//     } else if (msg.username === "系统") {
+		//         join_chat = '<div><p class="text-center background_color_system">' + msg.username + ":" + msg.msg + '</p></div>';
+		//     } else {
+		//         join_chat = '<div><p class="other_avtar text-center" >' + msg.username + '</p><p class="background_color_other p_other other_msg">' + msg.msg + '</p></div>';
+		//     }
+		//     $("#messages").append(join_chat);
+		// });
+		socket.on('my_response', function(msg) {
+			var join_chat;
+			if (msg.username === username) {
+				join_chat = `<div class="own">
+						<div>
+							<p class="own_avtar">
+								` + msg.username +
+					`
+							</p>
+							<p class="own_msg background_color_own">
+								` + msg.msg +
+					`
+							</p>
+						</div>
+						<div class="image">
+							<img src="img/avtar-1.png" alt="">
+						</div>
+					</div>`;
+			} else if (msg.username === "系统") {
+				join_chat =
+					`	<div class="system ">
+						<div class="image">
+							<img src="img/bot-18.png" alt="我不是小黄,我是小绿.">
+						</div>
+						<div>
+							<p class="system_avtar">
+								` +
+					msg.username + `
+							</p>
+							<p class="system_msg background_color_system">
+								` + msg.msg +
+					`
+							</p>
+						</div>
+					</div>`;
+			} else {
+				join_chat =
+					`<div class="other">
+						<div class="image">
+							<img src="img/avtar-2.png" alt="">
+						</div>
+						<div>
+							<p class="other_avtar">
+								` +
+					msg.username + `
+							</p>
+							<p class="other_msg background_color_other">
+								` + msg.msg +
+					`
+							</p>
+						</div>
+					</div>`;
+			}
+			$("#messages").append(join_chat);
+		});
+		listen_back.re_back(() => {
+			var data = {
+				username: username,
+				room_name: room_name,
+				room_num: room_num
+			};
+			socket.emit('leave', data);
+			socket.disconnect()
+		})
+	</script>
+	<script>
+		var textarea = document.getElementById('msg');
 
-            });
-            el.attachEvent("oncut", function () {
-                delayedResize(el);
-            }); //处理粘贴
-        }
-    }
+		function send_msg() {
+			var msg_data = {
+				msg: $("#msg").val(),
+				username: username,
+				room_num: room_num
+			};
+			socket.emit('chat_message', msg_data);
+			$('#msg').val('');
+			textarea.style.height = "93%"
+			return false;
+		}
 
-    makeExpandingArea(textarea);
-</script>
+		function makeExpandingArea(el) {
+			var timer = null;
+			//由于ie8有溢出堆栈问题，故调整了这里
+			var setStyle = function(el, auto) {
+				if (auto) el.style.height = 'auto';
+				el.style.height = el.scrollHeight + 'px';
+			}
+			var delayedResize = function(el) {
+				if (timer) {
+					clearTimeout(timer);
+					timer = null;
+				}
+				timer = setTimeout(function() {
+					setStyle(el)
+				}, 200);
+			}
+			if (el.addEventListener) {
+				el.addEventListener('input', function() {
+					setStyle(el, 1);
+				}, false);
+				setStyle(el)
+			} else if (el.attachEvent) {
+				el.attachEvent('onpropertychange', function() {
+					setStyle(el)
+				})
+				setStyle(el)
+			}
+			if (window.VBArray && window.addEventListener) { //IE9
+				el.attachEvent("onkeydown", function() {
+					var key = window.event.keyCode;
+					if (key == 8 || key == 46) delayedResize(el);
+
+				});
+				el.attachEvent("oncut", function() {
+					delayedResize(el);
+				}); //处理粘贴
+			}
+		}
+
+		makeExpandingArea(textarea);
+	</script>
 
 </html>
