@@ -183,6 +183,9 @@
 		var textarea = document.getElementById('msg');
 
 		function send_msg() {
+			if (!$("#msg").val()){
+				return false
+			}
 			var msg_data = {
 				msg: $("#msg").val(),
 				username: username,
