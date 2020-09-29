@@ -118,6 +118,25 @@
 		var divscll = document.getElementById('bd');
 		socket.on('my_response', function(msg) {
 			var join_chat;
+			load_msg(msg)
+		});
+		socket.on("load_old_msg",(msg)=>{
+			console.log(msg)
+			var  msg_list = msg.data
+			for(var i =0;i<msg_list.length;i++){
+				load_msg(msg_list[i])
+			}
+		})
+		listen_back.re_back(() => {
+			var data = {
+				username: username,
+				room_name: room_name,
+				room_num: room_num
+			};
+			socket.emit('leave', data);
+			socket.disconnect()
+		})
+		function load_msg(msg){
 			if (msg.username === username) {
 				join_chat = `<div class="own">
 						<div>
@@ -171,16 +190,7 @@
 			}
 			$("#messages").append(join_chat);
 			divscll.scrollTop = divscll.scrollHeight;
-		});
-		listen_back.re_back(() => {
-			var data = {
-				username: username,
-				room_name: room_name,
-				room_num: room_num
-			};
-			socket.emit('leave', data);
-			socket.disconnect()
-		})
+		}
 	</script>
 	<script>
 		var textarea = document.getElementById('msg');

@@ -7,6 +7,7 @@
 @Software: PyCharm
 """
 
+from collections import deque
 from datetime import datetime
 
 from flask import Flask, render_template, jsonify
@@ -34,6 +35,7 @@ room_list = []
 thread_get_room_list = None
 
 auth = HTTPBasicAuth()
+room_dict = {}
 
 
 def get_ip():
@@ -237,6 +239,7 @@ def on_create_room():
                 "room_name": room_name,
                 "room_create_time": now
             })
+            room_dict[str(room_num)] = deque(maxlen=100)
             return jsonify({'msg': "房间号创建成功", "code": 0})
             # send({'msg': "房间号创建成功", "code": 0})
             # emit('my_response', {'msg': "房间号创建成功", "code": 0}, room=room_num)
@@ -253,6 +256,7 @@ def on_delete_room():
         for room in room_list:
             if room["room_num"] == room_num:
                 room_list.remove(room)
+                room_dict.pop(str(room_num))
                 return jsonify({'msg': "房间删除成功！", "code": 0})
         return jsonify({'msg': "房间号不存在", "code": 0})
     else:
@@ -265,11 +269,12 @@ def get_room_list():
     socketio.emit("get_room_list", {"room_list": room_list}, namespace="/get_room_list")
 
 
-# @socketio.on("disconnect", namespace="/get_room_list")
-# def dis_room_list():
-#     print("disconnect_get_room_list")
-#     disconnect(namespace="/get_room_list")
-#
+@socketio.on("disconnect", namespace="/get_room_list")
+def dis_room_list():
+    print("disconnect_get_room_list")
+    # disconnect(namespace="/get_room_list")
+
+
 #
 # @socketio.on("connect", namespace="/get_room_list")
 # def get_room_list():
@@ -295,6 +300,7 @@ def on_join(data):
     room_num_list = [room["room_num"] for room in room_list]
     if room_num in room_num_list:
         join_room(room_num)
+        emit("load_old_msg", {"data": list(room_dict[str(room_num)])}, room=room_num)
         emit('my_response', {'msg': username + ' 进来了', 'room': room_num, 'username': "系统", 'code': 0}, room=room_num)
     else:
         send({'msg': "房间号不存在", 'room': room_num, 'username': "系统", 'code': 1})
@@ -313,6 +319,11 @@ def on_leave(data):
 @socketio.on('chat_message')
 def handle_chat_message(msg_data):
     print("chat_message")
+    if str(msg_data["room_num"]) in room_dict:
+        room_dict[str(msg_data["room_num"])].append(msg_data)
+    else:
+        room_dict[str(msg_data["room_num"])] = deque(maxlen=100)
+
     room_num = int(msg_data["room_num"])
     emit('my_response', msg_data, room=room_num)
 

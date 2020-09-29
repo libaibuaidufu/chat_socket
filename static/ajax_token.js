@@ -4,6 +4,8 @@
         subscribers: [],
         host: "http://121.199.27.219:5000",
         ws: "ws://121.199.27.219:5000",
+		// host: "http://127.0.0.1:5000",
+		// ws: "ws://127.0.0.1:5000",
         default_ajax: function (options, callback) {
             var token = sessionStorage.getItem("token");
             var auth = window.btoa(token + ":" + "*");
