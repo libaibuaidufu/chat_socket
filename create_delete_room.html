@@ -22,6 +22,8 @@
 		.layui-table-view {
 			margin: 0px;
 		}
+
+		.user_friend {}
 	</style>
 </head>
 
@@ -29,17 +31,22 @@
 	<div class="layui-container">
 		<div class="layui-row">
 			<table class="layui-hide" id="test" lay-filter="demo"></table>
-			<script type="text/html" id="barDemo">
-					<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="join">加入</a>
-					<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+			<script type="text/html" id="barRoom">
+					<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="join_room">加入</a>
+					<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del_room">删除</a>
+				</script>
+			<script type="text/html" id="barFriend">
+					<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="join_friend">聊天</a>
+					<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del_friend">删除</a>
 				</script>
 			<script type="text/html" id="toolbarDemo">
 					<div class="layui-btn-container">
-						<button class="layui-btn layui-btn-sm" lay-event="add">新建房间</button>
+						<button class="layui-btn layui-btn-sm" lay-event="add">新建</button>
+						<button class="layui-btn layui-btn-sm" lay-event="search">搜索</button>
+						<button class="layui-btn layui-btn-sm" lay-event="friend">好友</button>
+						<button class="layui-btn layui-btn-sm" lay-event="room">群聊</button>
 					</div>
 				</script>
-			<!-- <button data-method="offset" data-type="auto" class="layui-btn layui-btn-normal" id="jj">新建房间</button> -->
-
 		</div>
 	</div>
 </body>
@@ -50,39 +57,49 @@
 <script src="static/listen_back.js" type="text/javascript" charset="utf-8"></script>
 <script>
 	var table;
-	var layer;
 	var room_list = [];
-	var options = {
-		elem: '#test',
-		toolbar: '#toolbarDemo',
-		data: [],
-		cols: [
-			[{
+	var friend_list = [];
+	var room_cols = [
+		[
+			{
 				field: 'room_name',
 				title: '房间名称'
 			}, {
 				field: 'room_num',
-				title: '房间号'
+				title: '房间号',
+				sort: true
 			},
-			// {
-			// 	field: 'room_create_time',
-			// 	title: '创建时间',
-			// 	sort: true
-			// },
 			{
 				fixed: 'right',
 				title: '操作',
-				toolbar: '#barDemo'
+				toolbar: '#barRoom'
 			}
-			]
 		]
+	];
+	var friend_cols = [
+		[
+			{
+				field: 'username',
+				title: '好友名称'
+			},
+			{
+				fixed: 'right',
+				title: '操作',
+				toolbar: '#barFriend'
+			}
+		]
+	]
+	var options = {
+		elem: '#test',
+		toolbar: '#toolbarDemo',
+		data: [],
+		cols: []
 	}
 	layui.use('layer', function () {
-		layer = layui.layer;
-		$("#jj").on("click",)
 	});
-	layui.use('table', function () {
+	layui.use(['table', 'layer'], function () {
 		table = layui.table;
+		var layer = layui.layer;
 		table.render(options);
 		//监听事件
 		table.on('toolbar(demo)', function (obj) {
@@ -91,16 +108,37 @@
 				case 'add':
 					open_form();
 					break;
+				case "search":
+					search_open();
+					break;
+				case "friend":
+					// user_friend();
+					on_user_friend_table();
+					break;
+				case "room":
+					on_room_table()
+					// layer.msg("room");
+					break;
 			};
 		});
 		//监听工具条
 		table.on('tool(demo)', function (obj) {
 			var data = obj.data;
-			if (obj.event === 'del') {
-				delete_room(data.room_num)
-			} else if (obj.event === "join") {
-				join_room(data);
+			switch (obj.event) {
+				case "del_room":
+					on_delete_room(data.room_num);
+				case "join_room":
+					join_room(data);
+				case "join_friend":
+					join_friend(data)
+				case "del_friend":
+					on_delete_friend(data)
 			}
+			// if (obj.event === 'del_room') {
+			// 	on_delete_room(data.room_num)
+			// } else if (obj.event === "join_room") {
+			// 	join_room(data);
+			// }
 		});
 	});
 	layui.use('form', function () {
@@ -108,28 +146,74 @@
 		//监听提交
 		form.on('submit(form_create_room)', function (data) {
 			layer.msg(JSON.stringify(data.field));
-			chat.post_ajax("/create_room", data.field, create_room_callback)
+			// chat.post_ajax("/create_room", data.field, create_room_callback)
+			on_create_room(data.field)
 			return false;
 		});
 	});
 </script>
 <script type="text/javascript">
-	const namespace = chat.ws + "/get_room_list"
-	var socket = io(namespace)
-	var get_room_list = setInterval(function () {
-		socket.emit('get_room_list');
-	}, 5000);
+	const namespace = chat.ws + "/get_user_room";
+	var token = sessionStorage.getItem("token");
+	var auth = window.btoa(token + ":" + "*");
+	var socket = io(namespace, {
+		transportOptions: {
+			polling: {
+				extraHeaders: {
+					Authorization: "Basic " + auth
+				}
+			}
+		}
+	});
+	socket.on("token_fail",()=>{
+		console.log("gjj")
+		chat.get_token()
+		token = sessionStorage.getItem("token");
+		console.log(token)
+		console.log(socket.connected); // true
+		console.log(socket.disconnected); // true
+		socket.connect()
+		
+	})
+	// var get_room_list = setInterval(function() {
+	// 	socket.emit('get_room_list');
+	// }, 5000);
 	socket.on("get_room_list", function (msg) {
+		options.cols = room_cols;
 		options.data = msg.room_list;
 		room_list = msg.room_list;
 		table.render(options)
 	})
+	socket.on("get_user_friend", function (msg) {
+		options.cols = friend_cols;
+		options.data = msg.friend_list;
+		friend_list = msg.friend_list;
+		table.render(options)
+	})
+	socket.on("layer_msg", function (msg) {
+		layer.msg(msg.msg)
+	})
 	listen_back.re_back(() => {
-		clearInterval(get_room_list)
+		// clearInterval(get_room_list)
 		socket.disconnect()
 	})
+	function on_room_table() { socket.emit("get_room_list") }
+	function on_user_friend_table() { socket.emit("get_user_friend") }
+	function on_delete_room(room_num) {
+		socket.emit("delete_room", { room_num: room_num })
+		on_room_table()
+	}
+	function on_create_room(data) {
+		socket.emit("create_room", data)
+		on_room_table()
+	}
+
+	function on_delete_friend(data) {
+		socket.emit("delete_friend", data)
+		on_user_friend_table()
+	}
 </script>
-<script type="text/javascript">
+<script>
 	function join_room(room) {
 		var user_name = localStorage.getItem("user_name");
 		if (!user_name) {
@@ -145,6 +229,63 @@
 		var open_url = "chat.html";
 		window.location.href = open_url;
 	}
+	function join_friend(friend) {
+
+	}
+	function open_form() {
+		layer.open({
+			type: 1,
+			offset: "auto" //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+			,
+			id: 'layerDemo' + "auto" //防止重复弹出
+			,
+			shadeClose: true,
+			closeBtn: false,
+			content: `<form class="layui-form" action="">
+			<div class="layui-form-item">
+				<label class="layui-form-label">房间名称</label>
+				<div class="layui-input-inline">
+					<input type="text" name="room_name" required lay-verify="required" placeholder="请输入房间名称" autocomplete="off"
+					 class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">房间号</label>
+				<div class="layui-input-inline">
+					<input type="number" name="room_num" required lay-verify="required" placeholder="请输入房间号" autocomplete="off"
+					 class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn" lay-submit lay-filter="form_create_room">创建</button>
+				</div>
+			</div>
+		</form>`
+		});
+	}
+
+	function search_open() {
+		var content = `content`;
+		layer.open({
+			type: 2,
+			title: "搜索好友" //不显示标题栏
+			,
+			shadeClose: true,
+			closeBtn: false,
+			area: ['300px', '500px'],
+			shade: 0.8,
+			id: 'lay_search' //设定一个id，防止重复弹出
+			,
+			btn: [],
+			btnAlign: 'c',
+			moveType: 1 //拖拽模式，0或者1
+			,
+			content: "search_user.html"
+		});
+	}
+</script>
+<script type="text/javascript">
 
 	function delete_room(index) {
 		var room;
@@ -178,35 +319,51 @@
 		}
 	}
 
-	function open_form() {
-		layer.open({
-			type: 1,
-			offset: "auto" //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
-			,
-			id: 'layerDemo' + "auto" //防止重复弹出
-			,
-			content: `<form class="layui-form" action="">
-			<div class="layui-form-item">
-				<label class="layui-form-label">房间名称</label>
-				<div class="layui-input-inline">
-					<input type="text" name="room_name" required lay-verify="required" placeholder="请输入房间名称" autocomplete="off"
-					 class="layui-input">
-				</div>
-			</div>
-			<div class="layui-form-item">
-				<label class="layui-form-label">房间号</label>
-				<div class="layui-input-inline">
-					<input type="number" name="room_num" required lay-verify="required" placeholder="请输入房间号" autocomplete="off"
-					 class="layui-input">
-				</div>
-			</div>
-			<div class="layui-form-item">
-				<div class="layui-input-block">
-					<button class="layui-btn" lay-submit lay-filter="form_create_room">创建</button>
-				</div>
-			</div>
-		</form>`
-		});
+	function user_friend() {
+		chat.get_ajax("/user/friend", {}, (res) => {
+			console.log(res)
+			if (!res.friend) {
+				layer.msg("没有好友，先去添加吧")
+				return false
+			}
+			var content = "";
+			for (var i = 0; i < res.friend.length; i++) {
+				// content +='<li class="user_friend" onclick="go_to_chat('+res.friend[i]+')">'+res.friend[i]+'</li>';
+				content += `<div class="layui-card">
+								  <div class="layui-card-header" onclick="go_to_chat('` + res.friend[
+					i] + `')">` + res.friend[i] + `</div>
+								</div>`
+			}
+			for (var i = 0; i < 10; i++) {
+				// content +='<li class="user_friend" onclick="go_to_chat('+res.friend[i]+')">'+res.friend[i]+'</li>';
+				content += `<div class="layui-card">
+								  <div class="layui-card-header" onclick="go_to_chat('小黄是狗')">` +
+					'小黄是狗' + `</div>
+								</div>`
+			}
+			layer.open({
+				type: 1,
+				title: "好友列表" //不显示标题栏
+				,
+				shadeClose: true,
+				closeBtn: false,
+				area: '300px;',
+				shade: 0.8,
+				id: 'lay_user_friend' //设定一个id，防止重复弹出
+				,
+				btn: [],
+				btnAlign: 'c',
+				moveType: 1 //拖拽模式，0或者1
+				,
+				content: content
+			});
+		})
 	}
+
+	function go_to_chat(username) {
+		layer.msg("chat_with " + username)
+	}
+
 </script>
+
 </html>
